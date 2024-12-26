@@ -38,7 +38,7 @@ nav {
 }
 
 .nav-links a:hover {
-    color: #2563eb;
+    color: #daaa27;
 }
 
 .hamburger {
@@ -284,6 +284,10 @@ h1 {
         padding: 0;
     }
 
+    h1 {
+        text-align: center;
+    }
+
     .hamburger {
         display: flex;
     }
@@ -338,6 +342,10 @@ h1 {
     .text-overlay {
         padding: 15px;
         font-size: 1.2rem;
+    }
+
+    .contact-section {
+        text-align: center;
     }
 
     /* Center everything on mobile */

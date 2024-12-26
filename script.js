@@ -30,6 +30,21 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// Smooth scroll implementation
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        const navHeight = document.querySelector('nav').offsetHeight;
+        const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - navHeight;
+        
+        window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+        });
+    });
+});
+
 // Image Slider
 const slider = document.querySelector('.slider');
 const slides = document.querySelectorAll('.slide');
@@ -42,9 +57,9 @@ const lastSlideClone = slides[slides.length - 1].cloneNode(true);
 slider.appendChild(firstSlideClone);
 slider.insertBefore(lastSlideClone, slides[0]);
 
-let currentSlide = 1; // Start from first real slide (after clone)
+let currentSlide = 1;
 let isTransitioning = false;
-const totalSlides = slides.length + 2; // Including clones
+const totalSlides = slides.length + 2;
 
 // Initialize slider position
 slider.style.transform = `translateX(-${currentSlide * 100}%)`;
@@ -59,13 +74,11 @@ function goToSlide(index) {
 
 function handleSlideTransitionEnd() {
     isTransitioning = false;
-    // If we're at the clone of the last slide, jump to the real last slide
     if (currentSlide === 0) {
         slider.style.transition = 'none';
         currentSlide = totalSlides - 2;
         slider.style.transform = `translateX(-${currentSlide * 100}%)`;
     }
-    // If we're at the clone of the first slide, jump to the real first slide
     if (currentSlide === totalSlides - 1) {
         slider.style.transition = 'none';
         currentSlide = 1;
@@ -88,7 +101,7 @@ document.querySelector('.slider-container').appendChild(sliderNav);
 function updateDots() {
     const dots = document.querySelectorAll('.slider-dot');
     dots.forEach((dot, index) => {
-        dot.classList.toggle('active', index === currentSlide - 1);
+        dot.classList.toggle('active', index === (currentSlide - 1) % slides.length);
     });
 }
 
@@ -97,11 +110,16 @@ function nextSlide() {
     goToSlide(currentSlide + 1);
 }
 
+function previousSlide() {
+    if (isTransitioning) return;
+    goToSlide(currentSlide - 1);
+}
+
 // Event Listeners
 slider.addEventListener('transitionend', handleSlideTransitionEnd);
 
 // Auto-advance slides
-setInterval(nextSlide, 3000);
+setInterval(nextSlide, 5000);
 
 // Initialize dots
 updateDots();
@@ -125,3 +143,26 @@ const observer = new IntersectionObserver((entries) => {
 }, observerOptions);
 
 observer.observe(aboutSection);
+
+// Optional: Add touch support for mobile devices
+let touchStartX = 0;
+let touchEndX = 0;
+
+slider.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+});
+
+slider.addEventListener('touchmove', (e) => {
+    touchEndX = e.touches[0].clientX;
+});
+
+slider.addEventListener('touchend', () => {
+    const difference = touchStartX - touchEndX;
+    if (Math.abs(difference) > 50) { // Minimum swipe distance
+        if (difference > 0) {
+            nextSlide();
+        } else {
+            previousSlide();
+        }
+    }
+});
